@@ -13,9 +13,11 @@
     "url": "https://github.com/singerb/randspotrand/issues"
   },
   "dependencies": {
+    "jquery": "^3.3.1",
     "spotify-web-api-js": "^0.24.0"
   },
   "devDependencies": {
+    "@types/jquery": "^3.3.6",
     "browserify": "^16.2.2",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
