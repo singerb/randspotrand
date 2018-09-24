@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git://github.com/singerb/randspotrand.git"
   },
+  "browser": {
+    "vue": "vue/dist/vue.common.js"
+  },
   "author": "https://github.com/singerb",
   "license": "GPL-3.0-or-later",
   "bugs": {
@@ -14,7 +17,8 @@
   },
   "dependencies": {
     "jquery": "^3.3.1",
-    "spotify-web-api-js": "^0.24.0"
+    "spotify-web-api-js": "^0.24.0",
+    "vue": "^2.5.17"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.6",

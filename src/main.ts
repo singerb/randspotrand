@@ -1,10 +1,38 @@
-import * as SpotifyWebApi from 'spotify-web-api-js';
+import SpotifyWebApi from 'spotify-web-api-js';
 import * as $ from 'jquery';
+import Vue from 'vue';
+
+interface VueData {
+	state: string;
+	albums: Array<{ id: number, name: string }>;
+	devices: string[]; // TODO: real type
+	currentDevice: string | null;
+}
 
 class RSR {
-	private spotify = new SpotifyWebApi();
+	protected spotify = new SpotifyWebApi();
 	// TODO: move this to a config file
-	private readonly clientId = '2301b293ab694a37851af06e2ab262cb';
+	protected readonly clientId = '2301b293ab694a37851af06e2ab262cb';
+
+	protected app: Vue;
+	protected data: VueData = {
+		state: 'initial',
+		albums: [],
+		devices: [],
+		currentDevice: null,
+	};
+
+	constructor() {
+		this.app = new Vue( {
+			el: '#app',
+			data: this.data,
+			methods: {
+				login: () => {
+					this.loginWithSpotify();
+				},
+			},
+		} );
+	}
 
 	public async run() {
 		// handle redirects from spotify
@@ -21,14 +49,7 @@ class RSR {
 		if ( !token ) {
 			// show login button
 			console.log( 'no token, showing login button' );
-			$( '#loginButton' ).append(
-				$( '<a>', {
-					click: () => { this.loginWithSpotify(); },
-					href:  '#',
-					text:  'Login!',
-				} ),
-			);
-			$( '#loginButton' ).show();
+			this.data.state = 'logged-out';
 
 			return;
 		}
@@ -37,21 +58,14 @@ class RSR {
 		this.spotify.setAccessToken( token );
 
 		// try and retrieve the user's albums; if that fails, maybe we need to re-auth?
-		const albums = await this.getAlbums();
-		const list = $( '<ul>' );
-		for ( const album of albums ) {
-			list.append( $( '<li>', { text: album.album.name } ) );
-		}
-		$( '#albumList' ).append( list );
-		$( '#albumList' ).show();
+		await this.getAlbums();
 
 		// retrieve the users's playback info
 		const playback = await this.spotify.getMyCurrentPlaybackState();
-		$( '#albumList' ).prepend(
-			$( '<p>', { text: 'Currently playing on ' + playback.device.type + ' ' + playback.device.name } ),
-		);
+		this.data.currentDevice = playback.device.type + ' ' + playback.device.name;
 
 		// populate the UI with this data including event handlers
+		this.data.state = 'main';
 	}
 
 	private loginWithSpotify() {
@@ -143,18 +157,24 @@ class RSR {
 	private async getAlbums() {
 		let offset = 0;
 		const limit = 20;
-		let ret: SpotifyApi.SavedAlbumObject[] = [];
+
+		this.data.albums = [];
+		let i = 0;
+
 		while ( true ) {
 			const albums = await this.spotify.getMySavedAlbums( { offset: offset, limit: limit } );
-			ret = ret.concat( albums.items );
+
+			for ( const album of albums.items ) {
+				this.data.albums.push( { id: i, name: album.album.name } );
+				i++;
+			}
+
 			if ( albums.next ) {
 				offset += limit;
 			} else {
 				break;
 			}
 		}
-
-		return ret;
 	}
 }
 

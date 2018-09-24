@@ -9,7 +9,18 @@
 	<script src="js/main.js"></script>
 </head>
 <body>
-	<div id='loginButton' style='display: none;'></div>
-	<div id='albumList' style='display: none;'></div>
+	<div id='app'>
+		<p>State: {{ state }}</p>
+		<div id='loginButton' v-if='state === "logged-out"'>
+			<p>Login button here</p>
+			<a v-on:click='login' href='#'>Login!</a>
+		</div>
+		<div id='mainApp' v-if='state === "main"'>
+			<p>Currently playing on {{ currentDevice }}</p>
+			<ul>
+				<li v-for='album in albums' :key='album.id'>{{ album.name }}</li>
+			</ul>
+		</div>
+	</div>
 </body>
 </html>
