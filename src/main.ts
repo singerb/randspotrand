@@ -1,12 +1,14 @@
 import SpotifyWebApi from 'spotify-web-api-js';
 import * as $ from 'jquery';
 import Vue from 'vue';
+import { sample } from 'lodash';
 
 interface VueData {
 	state: string;
-	albums: Array<{ id: number, name: string }>;
+	albums: Array<{ uri: string, name: string, artists: string[] }>;
 	devices: string[]; // TODO: real type
 	currentDevice: string | null;
+	currentlyPlaying: { uri: string, name: string, artists: string[] } | null;
 }
 
 class RSR {
@@ -20,15 +22,31 @@ class RSR {
 		albums: [],
 		devices: [],
 		currentDevice: null,
+		currentlyPlaying: null,
 	};
 
 	constructor() {
 		this.app = new Vue( {
 			el: '#app',
 			data: this.data,
+			computed: {
+				currentlyPlayingText: () => {
+					if ( this.data.currentlyPlaying ) {
+						return this.data.currentlyPlaying.name + ' - ' + this.data.currentlyPlaying.artists.join( ', ' );
+					}
+
+					return 'Unknown';
+				},
+			},
 			methods: {
 				login: () => {
 					this.loginWithSpotify();
+				},
+				playRandom: () => {
+					this.playRandomAlbum().then( () => undefined ).catch( ( err ) => { console.error( err ); } );
+				},
+				refreshAlbums: () => {
+					this.getAlbums().then( () => undefined ).catch( ( err ) => { console.error( err ); } );
 				},
 			},
 		} );
@@ -59,6 +77,7 @@ class RSR {
 
 		// try and retrieve the user's albums; if that fails, maybe we need to re-auth?
 		await this.getAlbums();
+		await this.getCurrentlyPlaying();
 
 		// retrieve the users's playback info
 		const playback = await this.spotify.getMyCurrentPlaybackState();
@@ -154,19 +173,25 @@ class RSR {
 		return token;
 	}
 
+	private getArtistsFromAlbum( album: SpotifyApi.AlbumObjectFull ) {
+		return album.artists.map( ( artist ) => artist.name );
+	}
+
 	private async getAlbums() {
 		let offset = 0;
 		const limit = 20;
 
 		this.data.albums = [];
-		let i = 0;
 
 		while ( true ) {
 			const albums = await this.spotify.getMySavedAlbums( { offset: offset, limit: limit } );
 
 			for ( const album of albums.items ) {
-				this.data.albums.push( { id: i, name: album.album.name } );
-				i++;
+				this.data.albums.push( {
+					uri: album.album.uri,
+					name: album.album.name,
+					artists: this.getArtistsFromAlbum( album.album ),
+				} );
 			}
 
 			if ( albums.next ) {
@@ -174,6 +199,35 @@ class RSR {
 			} else {
 				break;
 			}
+		}
+	}
+
+	private async playRandomAlbum() {
+		const album = sample( this.data.albums );
+
+		if ( album ) {
+			// TODO: why doesn't this pick the right type overide?
+			await ( this.spotify as any ).play( {
+				context_uri: album.uri,
+			} );
+
+			await this.getCurrentlyPlaying();
+		}
+	}
+
+	private async getCurrentlyPlaying() {
+		try {
+			const playing = await this.spotify.getMyCurrentPlaybackState();
+
+			if ( playing.item ) {
+				const album = await this.spotify.getAlbum( playing.item.album.id );
+				this.data.currentlyPlaying = { uri: album.uri, name: album.name, artists: this.getArtistsFromAlbum( album ) };
+			} else {
+				this.data.currentlyPlaying = null;
+			}
+		} catch ( err ) {
+			console.error( err );
+			this.data.currentlyPlaying = null;
 		}
 	}
 }
