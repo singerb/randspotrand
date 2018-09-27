@@ -2,13 +2,20 @@ import SpotifyWebApi from 'spotify-web-api-js';
 import * as $ from 'jquery';
 import Vue from 'vue';
 import { sample } from 'lodash';
+import Vuex, { Store, mapGetters, mapState } from 'vuex';
 
-interface VueData {
+interface AlbumInfo {
+	uri: string;
+	name: string;
+	artists: string[];
+}
+
+interface RSRStoreState {
 	state: string;
-	albums: Array<{ uri: string, name: string, artists: string[] }>;
+	albums: AlbumInfo[];
 	devices: string[]; // TODO: real type
 	currentDevice: string | null;
-	currentlyPlaying: { uri: string, name: string, artists: string[] } | null;
+	currentlyPlaying: AlbumInfo | null;
 }
 
 class RSR {
@@ -17,26 +24,56 @@ class RSR {
 	protected readonly clientId = '2301b293ab694a37851af06e2ab262cb';
 
 	protected app: Vue;
-	protected data: VueData = {
-		state: 'initial',
-		albums: [],
-		devices: [],
-		currentDevice: null,
-		currentlyPlaying: null,
-	};
+	protected store: Store<RSRStoreState>;
 
 	constructor() {
-		this.app = new Vue( {
-			el: '#app',
-			data: this.data,
-			computed: {
-				currentlyPlayingText: () => {
-					if ( this.data.currentlyPlaying ) {
-						return this.data.currentlyPlaying.name + ' - ' + this.data.currentlyPlaying.artists.join( ', ' );
+		Vue.use( Vuex );
+
+		this.store = new Vuex.Store<RSRStoreState>( {
+			state: {
+				state: 'initial',
+				albums: [],
+				devices: [],
+				currentDevice: null,
+				currentlyPlaying: null,
+			},
+			mutations: {
+				changeState( state, newState: string ) {
+					state.state = newState;
+				},
+				setCurrentDevice( state, newDevice: string | null ) {
+					state.currentDevice = newDevice;
+				},
+				setCurrentlyPlaying( state, newPlayback: AlbumInfo | null ) {
+					state.currentlyPlaying = newPlayback;
+				},
+				setAlbums( state, newAlbums: AlbumInfo[] ) {
+					state.albums = newAlbums;
+				},
+			},
+			getters: {
+				currentlyPlayingText: ( state ) => {
+					if ( state.currentlyPlaying ) {
+						return state.currentlyPlaying.name + ' - ' + state.currentlyPlaying.artists.join( ', ' );
 					}
 
 					return 'Unknown';
 				},
+			},
+		} );
+
+		this.app = new Vue( {
+			el: '#app',
+			store: this.store,
+			computed: {
+				...mapGetters( [
+					'currentlyPlayingText',
+				] ),
+				...mapState( {
+					state: ( state: RSRStoreState ) => state.state,
+					currentDevice: ( state: RSRStoreState ) => state.currentDevice,
+					albums: ( state: RSRStoreState ) => state.albums,
+				} ),
 			},
 			methods: {
 				login: () => {
@@ -67,7 +104,7 @@ class RSR {
 		if ( !token ) {
 			// show login button
 			console.log( 'no token, showing login button' );
-			this.data.state = 'logged-out';
+			this.store.commit( 'changeState', 'logged-out' );
 
 			return;
 		}
@@ -81,10 +118,10 @@ class RSR {
 
 		// retrieve the users's playback info
 		const playback = await this.spotify.getMyCurrentPlaybackState();
-		this.data.currentDevice = playback.device.type + ' ' + playback.device.name;
+		this.store.commit( 'setCurrentDevice', playback.device.type + ' ' + playback.device.name );
 
 		// populate the UI with this data including event handlers
-		this.data.state = 'main';
+		this.store.commit( 'changeState', 'main' );
 	}
 
 	private loginWithSpotify() {
@@ -181,13 +218,13 @@ class RSR {
 		let offset = 0;
 		const limit = 20;
 
-		this.data.albums = [];
+		const newAlbums: AlbumInfo[] = [];
 
 		while ( true ) {
 			const albums = await this.spotify.getMySavedAlbums( { offset: offset, limit: limit } );
 
 			for ( const album of albums.items ) {
-				this.data.albums.push( {
+				newAlbums.push( {
 					uri: album.album.uri,
 					name: album.album.name,
 					artists: this.getArtistsFromAlbum( album.album ),
@@ -200,10 +237,12 @@ class RSR {
 				break;
 			}
 		}
+
+		this.store.commit( 'setAlbums', newAlbums );
 	}
 
 	private async playRandomAlbum() {
-		const album = sample( this.data.albums );
+		const album = sample( this.store.state.albums );
 
 		if ( album ) {
 			// TODO: why doesn't this pick the right type overide?
@@ -221,13 +260,20 @@ class RSR {
 
 			if ( playing.item ) {
 				const album = await this.spotify.getAlbum( playing.item.album.id );
-				this.data.currentlyPlaying = { uri: album.uri, name: album.name, artists: this.getArtistsFromAlbum( album ) };
+				this.store.commit(
+					'setCurrentlyPlaying',
+					{
+						uri: album.uri,
+						name: album.name,
+						artists: this.getArtistsFromAlbum( album ),
+					},
+				);
 			} else {
-				this.data.currentlyPlaying = null;
+				this.store.commit( 'setCurrentlyPlaying', null );
 			}
 		} catch ( err ) {
 			console.error( err );
-			this.data.currentlyPlaying = null;
+			this.store.commit( 'setCurrentlyPlaying', null );
 		}
 	}
 }
