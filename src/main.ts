@@ -4,6 +4,9 @@ import Vue from 'vue';
 import { sample } from 'lodash';
 import Vuex, { Store, mapGetters, mapState } from 'vuex';
 
+// components
+import Button from './components/button';
+
 interface AlbumInfo {
 	uri: string;
 	name: string;
@@ -65,6 +68,9 @@ class RSR {
 		this.app = new Vue( {
 			el: '#app',
 			store: this.store,
+			components: {
+				'rsr-button': Button,
+			},
 			computed: {
 				...mapGetters( [
 					'currentlyPlayingText',
