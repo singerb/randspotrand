@@ -19,7 +19,7 @@
 			<rsr-button v-on:clicked='playRandom' color='green'>Play Random Album</rsr-button>
 			<rsr-button v-on:clicked='refreshAlbums' color='grey'>Refresh Album List</rsr-button>
 			<ul>
-				<li v-for='album in albums' :key='album.uri'>{{ album.name }} - {{ album.artists.join( ', ' ) }}</li>
+				<li v-for='album in albums' :key='album.uri'><rsr-album v-bind:album='album'></rsr-album></li>
 			</ul>
 		</div>
 	</div>

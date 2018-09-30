@@ -1,5 +1,8 @@
-export default {
+import Vue from 'vue';
+
+export default Vue.extend( {
 	// TODO: defaults somehow?
+	// TODO: typesafe somehow?
 	props: [
 		'color',
 	],
@@ -9,4 +12,4 @@ export default {
 			<slot></slot>
 		</button>
 	`,
-};
+} );

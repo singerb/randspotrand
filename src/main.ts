@@ -6,19 +6,14 @@ import Vuex, { Store, mapGetters, mapState } from 'vuex';
 
 // components
 import Button from './components/button';
-
-interface AlbumInfo {
-	uri: string;
-	name: string;
-	artists: string[];
-}
+import Album from './components/album';
 
 interface RSRStoreState {
 	state: string;
-	albums: AlbumInfo[];
+	albums: SpotifyApi.AlbumObjectFull[];
 	devices: string[]; // TODO: real type
 	currentDevice: string | null;
-	currentlyPlaying: AlbumInfo | null;
+	currentlyPlaying: SpotifyApi.AlbumObjectFull | null;
 }
 
 class RSR {
@@ -47,17 +42,19 @@ class RSR {
 				setCurrentDevice( state, newDevice: string | null ) {
 					state.currentDevice = newDevice;
 				},
-				setCurrentlyPlaying( state, newPlayback: AlbumInfo | null ) {
+				setCurrentlyPlaying( state, newPlayback: SpotifyApi.AlbumObjectFull | null ) {
 					state.currentlyPlaying = newPlayback;
 				},
-				setAlbums( state, newAlbums: AlbumInfo[] ) {
+				setAlbums( state, newAlbums: SpotifyApi.AlbumObjectFull[] ) {
 					state.albums = newAlbums;
 				},
 			},
 			getters: {
 				currentlyPlayingText: ( state ) => {
 					if ( state.currentlyPlaying ) {
-						return state.currentlyPlaying.name + ' - ' + state.currentlyPlaying.artists.join( ', ' );
+						return state.currentlyPlaying.name +
+							' - ' +
+							state.currentlyPlaying.artists.map( ( artist ) => artist.name ).join( ', ' );
 					}
 
 					return 'Unknown';
@@ -70,6 +67,7 @@ class RSR {
 			store: this.store,
 			components: {
 				'rsr-button': Button,
+				'rsr-album':  Album,
 			},
 			computed: {
 				...mapGetters( [
@@ -216,25 +214,17 @@ class RSR {
 		return token;
 	}
 
-	private getArtistsFromAlbum( album: SpotifyApi.AlbumObjectFull ) {
-		return album.artists.map( ( artist ) => artist.name );
-	}
-
 	private async getAlbums() {
 		let offset = 0;
 		const limit = 20;
 
-		const newAlbums: AlbumInfo[] = [];
+		const newAlbums: SpotifyApi.AlbumObjectFull[] = [];
 
 		while ( true ) {
 			const albums = await this.spotify.getMySavedAlbums( { offset: offset, limit: limit } );
 
 			for ( const album of albums.items ) {
-				newAlbums.push( {
-					uri: album.album.uri,
-					name: album.album.name,
-					artists: this.getArtistsFromAlbum( album.album ),
-				} );
+				newAlbums.push( album.album );
 			}
 
 			if ( albums.next ) {
@@ -266,14 +256,7 @@ class RSR {
 
 			if ( playing.item ) {
 				const album = await this.spotify.getAlbum( playing.item.album.id );
-				this.store.commit(
-					'setCurrentlyPlaying',
-					{
-						uri: album.uri,
-						name: album.name,
-						artists: this.getArtistsFromAlbum( album ),
-					},
-				);
+				this.store.commit( 'setCurrentlyPlaying', album );
 			} else {
 				this.store.commit( 'setCurrentlyPlaying', null );
 			}
