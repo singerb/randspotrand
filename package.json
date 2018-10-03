@@ -20,7 +20,8 @@
     "lodash": "^4.17.11",
     "spotify-web-api-js": "^0.24.0",
     "vue": "^2.5.17",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vuex-typex": "github:singerb/vuex-typex"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.6",

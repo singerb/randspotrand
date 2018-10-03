@@ -13,6 +13,9 @@ export default Vue.extend( {
 		},
 	},
 	template: `
-		<span>{{ album.name }} - {{ artistList }}</span>
+		<span>
+			<span v-if='album'>{{ album.name }} - {{ artistList }}</span>
+			<span v-else>No album</span>
+		</span>
 	`,
 } );

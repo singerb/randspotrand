@@ -31,7 +31,9 @@ gulp.task( 'build', [ 'copy-html' ], () => {
 		.pipe( source( 'main.js' ) )
 		.pipe( buffer() )
 		.pipe( sourcemaps.init( { loadMaps: true } ) )
-		.pipe( uglify() )
+		.pipe( uglify( {
+			keep_fnames: true,
+		} ) )
 		.pipe( sourcemaps.write() )
 		.pipe( gulp.dest( 'dist/js' ) );
 } );
