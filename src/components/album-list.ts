@@ -1,7 +1,7 @@
 import Vue from 'vue';
 
 // components
-import Album from './album';
+import Album, { ImageSize } from './album';
 import Button from './button';
 
 // store
@@ -17,6 +17,9 @@ export default Vue.extend( {
 	computed: {
 		albums() {
 			return albumStore.state().albums;
+		},
+		imageSize() {
+			return ImageSize.MEDIUM;
 		},
 	},
 	methods: {
@@ -54,7 +57,9 @@ export default Vue.extend( {
 		<div>
 			<rsr-button v-on:clicked='getAlbums' color='grey'>Refresh Album List</rsr-button>
 			<ul>
-				<li v-for='album in albums' :key='album.uri'><rsr-album v-bind:album='album'></rsr-album></li>
+				<li v-for='album in albums' :key='album.uri'>
+					<rsr-album v-bind:album='album' v-bind:imageSize='imageSize'></rsr-album>
+				</li>
 			</ul>
 		</div>
 	`,

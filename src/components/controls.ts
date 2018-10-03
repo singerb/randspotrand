@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { sample } from 'lodash';
 
 // components
-import Album from './album';
+import Album, { ImageSize } from './album';
 import Button from './button';
 
 // store
@@ -22,6 +22,9 @@ export default Vue.extend( {
 		},
 		currentDevice() {
 			return deviceStore.state().currentDevice;
+		},
+		imageSize() {
+			return ImageSize.LARGE;
 		},
 	},
 	methods: {
@@ -62,7 +65,7 @@ export default Vue.extend( {
 	},
 	template: `
 		<div>
-			<rsr-album v-bind:album='currentlyPlaying'></rsr-album>
+			<rsr-album v-bind:album='currentlyPlaying' v-bind:imageSize='imageSize'></rsr-album>
 			<p>Playing on {{ currentDevice }}</p>
 			<rsr-button v-on:clicked='playRandomAlbum' color='green'>Play Random Album</rsr-button>
 		</div>

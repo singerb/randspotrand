@@ -73,7 +73,11 @@ class RSR {
 		// retrieve the users's playback info
 		// TODO: moves into controls component
 		const playback = await rsrStore.state().api.getMyCurrentPlaybackState();
-		devicesStore.commitCurrentDevice( playback.device.type + ' ' + playback.device.name );
+		if ( playback && playback.device ) {
+			devicesStore.commitCurrentDevice( playback.device.type + ' ' + playback.device.name );
+		} else {
+			devicesStore.commitCurrentDevice( 'Unknown' );
+		}
 
 		// populate the UI with this data including event handlers
 		rsrStore.commitChangeState( 'main' );
