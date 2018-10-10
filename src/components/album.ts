@@ -7,9 +7,9 @@ export enum ImageSize {
 }
 
 const sizeMap = new Map( [
-	[ ImageSize.SMALL, 0 ],
+	[ ImageSize.LARGE, 0 ],
 	[ ImageSize.MEDIUM, 1 ],
-	[ ImageSize.LARGE, 2 ],
+	[ ImageSize.SMALL, 2 ],
 ] );
 
 export default Vue.extend( {

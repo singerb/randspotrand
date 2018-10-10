@@ -19,7 +19,7 @@ export default Vue.extend( {
 			return albumStore.state().albums;
 		},
 		imageSize() {
-			return ImageSize.MEDIUM;
+			return ImageSize.SMALL;
 		},
 	},
 	methods: {

@@ -24,7 +24,7 @@ export default Vue.extend( {
 			return deviceStore.state().currentDevice;
 		},
 		imageSize() {
-			return ImageSize.LARGE;
+			return ImageSize.MEDIUM;
 		},
 	},
 	methods: {
