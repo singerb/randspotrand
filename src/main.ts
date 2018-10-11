@@ -3,10 +3,10 @@ import Vue from 'vue';
 import Vuex, { Store, mapState } from 'vuex';
 
 // components
-import Button from './components/button';
-import AlbumList from './components/album-list';
-import Controls from './components/controls';
-import Loading from './components/loading';
+import Button from './components/button.vue';
+import AlbumList from './components/album-list.vue';
+import Controls from './components/controls.vue';
+import Loading from './components/loading.vue';
 
 // store
 import store, { RootState } from './store/store';

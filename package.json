@@ -24,6 +24,7 @@
     "vuex-typex": "github:singerb/vuex-typex"
   },
   "devDependencies": {
+    "@types/gulp": "^4.0.5",
     "@types/jquery": "^3.3.6",
     "@types/lodash": "^4.14.116",
     "browserify": "^16.2.2",
@@ -39,6 +40,8 @@
     "tslint": "^5.11.0",
     "typescript": "^3.0.1",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "vue-typescript-import-dts": "^4.0.0",
+    "vueify": "^9.4.1"
   }
 }

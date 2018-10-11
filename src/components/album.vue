@@ -1,10 +1,17 @@
-import Vue from 'vue';
+<template>
+	<div>
+		<div v-if='album'>
+			<img v-bind:src='imageUrl' />
+			<br />
+			{{ album.name }} - {{ artistList }}
+		</div>
+		<span v-else>No album</span>
+	</div>
+</template>
 
-export enum ImageSize {
-	SMALL = 'small',
-	MEDIUM = 'medium',
-	LARGE = 'large',
-}
+<script lang="ts">
+import Vue from 'vue';
+import { ImageSize } from '../image-size';
 
 const sizeMap = new Map( [
 	[ ImageSize.LARGE, 0 ],
@@ -33,14 +40,5 @@ export default Vue.extend( {
 			return this.album.images[ 0 ].url;
 		},
 	},
-	template: `
-		<div>
-			<div v-if='album'>
-				<img v-bind:src='imageUrl'></img>
-				<br />
-				{{ album.name }} - {{ artistList }}
-			</div>
-			<span v-else>No album</span>
-		</div>
-	`,
 } );
+</script>

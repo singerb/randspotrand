@@ -1,9 +1,19 @@
+<template>
+	<div>
+		<rsr-album v-bind:album='currentlyPlaying' v-bind:imageSize='imageSize'></rsr-album>
+		<p>Playing on {{ currentDevice }}</p>
+		<rsr-button v-on:clicked='playRandomAlbum' color='green'>Play Random Album</rsr-button>
+	</div>
+</template>
+
+<script lang="ts">
 import Vue from 'vue';
 import { sample } from 'lodash';
 
 // components
-import Album, { ImageSize } from './album';
-import Button from './button';
+import Album from './album.vue';
+import Button from './button.vue';
+import { ImageSize } from '../image-size';
 
 // store
 import albumsStore from '../store/albums';
@@ -63,11 +73,5 @@ export default Vue.extend( {
 		'rsr-album': Album,
 		'rsr-button': Button,
 	},
-	template: `
-		<div>
-			<rsr-album v-bind:album='currentlyPlaying' v-bind:imageSize='imageSize'></rsr-album>
-			<p>Playing on {{ currentDevice }}</p>
-			<rsr-button v-on:clicked='playRandomAlbum' color='green'>Play Random Album</rsr-button>
-		</div>
-	`,
 } );
+</script>

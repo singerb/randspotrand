@@ -9,6 +9,8 @@ const source     = require( 'vinyl-source-stream');
 const buffer     = require( 'vinyl-buffer' );
 const tsify      = require( 'tsify' );
 const sass       = require( 'gulp-sass' );
+const baseTs     = require( 'typescript' );
+const vueify     = require( 'vueify' );
 
 const project = ts.createProject( 'tsconfig.json' );
 
@@ -24,6 +26,28 @@ gulp.task( 'build', [ 'copy-html' ], () => {
 		entries: [ 'src/main.ts' ],
 		debug: true
 	} )
+		.transform( vueify, {
+			customCompilers: {
+				// for tags with lang = "ts"
+				ts: (content, cb, compiler, filePath) => {
+					// content:           content extracted from lang = "ts" blocks
+					// cb:                the callback to call when you're done compiling
+					// compiler:          the vueify compiler instance
+					// filePath:          the path for the file being compiled
+
+					// compile some TypeScript... and when you're done:
+					const result = baseTs.transpileModule( content, {
+						compilerOptions: {
+							module: baseTs.ModuleKind.CommonJS,
+							esModuleInterop: true,
+							target: baseTs.ScriptTarget.ES5,
+						},
+					} );
+					cb( null, result.outputText );
+				}
+			}
+		} )
+		.plugin( 'vueify/plugins/extract-css', { out: 'dist/css/components.css' } )
 		.plugin( tsify )
 		.on( 'error', console.log )
 		.bundle()
@@ -42,6 +66,7 @@ gulp.task( 'lint', [ 'build' ], () => {
 	const program = tslintBase.Linter.createProgram( './tsconfig.json' );
 
 	// TODO: ideally this could use project.src(), but that makes it lint all the JS files
+	// TODO: this won't lint .vue files; I have editor support for that, but it would be good to do here too
 	return gulp.src( [ 'src/*.ts' ] )
 		.pipe( tslint( {
 			formatter: 'verbose',
