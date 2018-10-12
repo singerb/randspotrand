@@ -13,7 +13,7 @@
 	<div id='app'>
 		<rsr-loading v-if='state === "initial"'></rsr-loading>
 		<div id='loginButton' v-if='state === "logged-out"'>
-			<rsr-button v-on:clicked='login' color='green'>Login!</rsr-button>
+			<rsr-button v-on:clicked='login' color='#1DB954'>Login!</rsr-button>
 		</div>
 		<div id='mainApp' v-if='state === "main"'>
 			<rsr-controls></rsr-controls>

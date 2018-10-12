@@ -1,13 +1,28 @@
 <template>
 	<div>
-		<rsr-button v-on:clicked='getAlbums' color='grey'>Refresh Album List</rsr-button>
 		<ul>
 			<li v-for='album in albums' :key='album.uri'>
 				<rsr-album v-bind:album='album' v-bind:imageSize='imageSize'></rsr-album>
 			</li>
 		</ul>
+		<rsr-button v-on:clicked='getAlbums' color='grey'>Refresh Album List</rsr-button>
 	</div>
 </template>
+
+<style lang="scss" scoped>
+
+ul {
+	display: grid;
+	list-style: none;
+	grid-template-columns: repeat( auto-fill, minmax( 200px, 1fr ) );
+}
+
+div {
+	text-align: center;
+}
+
+</style>
+
 
 <script lang="ts">
 import Vue from 'vue';

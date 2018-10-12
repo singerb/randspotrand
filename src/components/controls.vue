@@ -2,9 +2,19 @@
 	<div>
 		<rsr-album v-bind:album='currentlyPlaying' v-bind:imageSize='imageSize'></rsr-album>
 		<p>Playing on {{ currentDevice }}</p>
-		<rsr-button v-on:clicked='playRandomAlbum' color='green'>Play Random Album</rsr-button>
+		<rsr-button v-on:clicked='playRandomAlbum' color='#1DB954'>Play Random Album</rsr-button>
 	</div>
 </template>
+
+<style lang="scss" scoped>
+
+div {
+	text-align: center;
+	float: left;
+}
+
+</style>
+
 
 <script lang="ts">
 import Vue from 'vue';

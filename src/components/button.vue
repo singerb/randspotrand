@@ -10,6 +10,8 @@
 		border: 0;
 		color: white;
 		font-size: 1.5em;
+		padding: 0.25em;
+		font-family: monospace;
 	}
 </style>
 

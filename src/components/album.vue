@@ -1,13 +1,32 @@
 <template>
-	<div>
+	<div class='album'>
 		<div v-if='album'>
 			<img v-bind:src='imageUrl' />
 			<br />
-			{{ album.name }} - {{ artistList }}
+			<span class='albumName'>{{ album.name }}</span>
+			<br />
+			<span class='artistName'>{{ artistList }}</span>
 		</div>
 		<span v-else>No album</span>
 	</div>
 </template>
+
+<style lang="scss">
+
+div.album {
+	text-align: center;
+}
+
+span.albumName {
+	font-weight: bold;
+}
+
+span.artistName {
+	font-style: italic;
+}
+
+</style>
+
 
 <script lang="ts">
 import Vue from 'vue';
