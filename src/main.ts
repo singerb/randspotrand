@@ -11,7 +11,6 @@ import Loading from './components/loading.vue';
 // store
 import store, { RootState } from './store/store';
 import rsrStore, { RSRState } from './store/rsr';
-import devicesStore from './store/devices';
 
 class RSR {
 	// TODO: move this to a config file
@@ -70,16 +69,7 @@ class RSR {
 		console.log( 'access token retrieved and set to ' + token );
 		rsrStore.commitAccessToken( token );
 
-		// retrieve the users's playback info
-		// TODO: moves into controls component
-		const playback = await rsrStore.state().api.getMyCurrentPlaybackState();
-		if ( playback && playback.device ) {
-			devicesStore.commitCurrentDevice( playback.device.type + ' ' + playback.device.name );
-		} else {
-			devicesStore.commitCurrentDevice( 'Unknown' );
-		}
-
-		// populate the UI with this data including event handlers
+		// move to the main app state
 		rsrStore.commitChangeState( 'main' );
 	}
 

@@ -8,7 +8,6 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { sample } from 'lodash';
 
 // components
 import Album from './album.vue';
@@ -17,12 +16,14 @@ import { ImageSize } from '../image-size';
 
 // store
 import albumsStore from '../store/albums';
-import rsrStore from '../store/rsr';
 import deviceStore from '../store/devices';
 
 export default Vue.extend( {
 	created: function() {
 		this.getCurrentlyPlaying().catch( ( err ) => {
+			console.error( err );
+		} );
+		this.getCurrentDevice().catch( ( err ) => {
 			console.error( err );
 		} );
 	},
@@ -38,35 +39,14 @@ export default Vue.extend( {
 		},
 	},
 	methods: {
-		// TODO: should these be in the store itself? Probably yes, and you just commit a 'refresh' or 'play random' mutation/action
 		async getCurrentlyPlaying() {
-			console.log( 'in component playing get' );
-
-			try {
-				const playing = await rsrStore.state().api.getMyCurrentPlaybackState();
-
-				if ( playing.item ) {
-					const album = await rsrStore.state().api.getAlbum( playing.item.album.id );
-					albumsStore.commitCurrentlyPlaying( album );
-				} else {
-					albumsStore.commitCurrentlyPlaying( null );
-				}
-			} catch ( err ) {
-				console.error( err );
-				albumsStore.commitCurrentlyPlaying( null );
-			}
+			await albumsStore.retrieveCurrentlyPlaying();
+		},
+		async getCurrentDevice() {
+			await deviceStore.retrieveCurrentDevice();
 		},
 		async playRandomAlbum() {
-			const album = sample( albumsStore.state().albums );
-
-			if ( album ) {
-				// TODO: why doesn't this pick the right type overide?
-				await ( rsrStore.state().api as any ).play( {
-					context_uri: album.uri,
-				} );
-
-				await this.getCurrentlyPlaying();
-			}
+			await albumsStore.playRandom();
 		},
 	},
 	components: {

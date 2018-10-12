@@ -22,6 +22,5 @@ export default Vue.extend( {
 	props: [
 		'color',
 	],
-	// TODO: needs to set the background color not the text
 } );
 </script>
